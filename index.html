@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Realizador+ · Painel da Loja</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;700;900&family=Manrope:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0A0908;
+    --bg-elev: #161413;
+    --bg-card: #1C1917;
+    --ink: #F5F0E6;
+    --ink-muted: #9A9288;
+    --ink-dim: #5E574E;
+    --red: #C8102E;
+    --red-bright: #E63946;
+    --red-deep: #8B0E21;
+    --red-glow: rgba(230,57,70,0.4);
+    --amber: var(--red);          /* aliases p/ minimizar mudanças estruturais */
+    --amber-bright: var(--red-bright);
+    --amber-deep: var(--red-deep);
+    --bronze: #B87333;
+    --prata: #BFBFBF;
+    --ouro: #E8B84A;
+    --diamante: #7FD4D9;
+    --danger: #D4624D;
+    --success: #7CB982;
+    --line: rgba(245,240,230,0.08);
+    --line-strong: rgba(245,240,230,0.16);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Manrope', system-ui, sans-serif;
+    font-weight: 400;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Textura granulada sutil */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: radial-gradient(circle at 20% 10%, rgba(200,16,46,0.12) 0%, transparent 40%),
+                      radial-gradient(circle at 85% 90%, rgba(200,16,46,0.06) 0%, transparent 45%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    mix-blend-mode: overlay;
+  }
+
+  .stage {
+    position: relative;
+    z-index: 1;
+    max-width: 1920px;
+    margin: 0 auto;
+    padding: 32px 48px 48px;
+  }
+
+  /* =============== HEADER =============== */
+  header {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: end;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 40px;
+  }
+
+  .header-left {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .kicker {
+    font-family: 'Manrope', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.28em;
+    color: var(--red-bright);
+    text-transform: uppercase;
+  }
+
+  .cycle {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 22px;
+    color: var(--ink-muted);
+    letter-spacing: 0.01em;
+  }
+
+  .brand {
+    text-align: center;
+  }
+
+  .brand .logo {
+    font-family: 'Big Shoulders Display', sans-serif;
+    font-weight: 900;
+    font-size: 112px;
+    line-height: 0.85;
+    letter-spacing: -0.01em;
+    background: linear-gradient(180deg, #FF5062 0%, var(--red) 45%, var(--red-deep) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 2px 16px rgba(200,16,46,0.35));
+    position: relative;
+    display: inline-block;
+  }
+
+  .brand .logo .plus {
+    color: var(--red-bright);
+    -webkit-text-fill-color: var(--red-bright);
+    font-size: 0.7em;
+    vertical-align: super;
+    margin-left: -4px;
+  }
+
+  .brand .tagline {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 18px;
+    color: var(--ink-muted);
+    letter-spacing: 0.02em;
+    margin-top: 4px;
+  }
+
+  .header-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+  }
+
+  .clock {
+    font-family: 'Big Shoulders Display', sans-serif;
+    font-weight: 700;
+    font-size: 34px;
+    color: var(--ink);
+    letter-spacing: 0.04em;
+    line-height: 1;
+  }
+
+  .days-left {
+    font-family: 'Manrope', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink-muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .days-left strong {
+    color: var(--red-bright);
+    font-weight: 700;
+    font-size: 14px;
+  }
+
+  /* =============== GRID =============== */
+  .grid {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 32px;
+  }
+
+  /* =============== PÓDIO =============== */
+  .podium-wrap {
+    background: linear-gradient(180deg, rgba(200,16,46,0.06) 0%, transparent 100%);
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    padding: 36px 40px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .podium-wrap::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--red), transparent);
+    opacity: 0.6;
+  }
+
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.28em;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+
+  .section-label::before {
+    content: '';
+    width: 20px;
+    height: 1px;
+    background: var(--red);
+  }
+
+  .podium {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr 1fr;
+    align-items: end;
+    gap: 18px;
+    margin-bottom: 12px;
+  }
+
+  .pod {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .medal {
+    width: 84px; height: 84px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Big Shoulders Display', sans-serif;
+    font-weight: 900;
+    font-size: 56px;
+    line-height: 1;
+    border: 2px solid;
+    position: relative;
+  }
+
+  .medal::after {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    border-radius: 50%;
+    border: 1px dashed;
+    opacity: 0.3;
+  }
+
+  .pod--1 .medal {
+    background: radial-gradient(circle at 30% 30%, #FF6478, var(--red) 50%, var(--red-deep) 100%);
+    color: #FFFFFF;
+    border-color: #FF6478;
+    width: 110px; height: 110px;
+    font-size: 72px;
+    box-shadow: 0 0 60px rgba(230,57,70,0.55), inset 0 2px 8px rgba(255,100,120,0.4);
+  }
+  .pod--1 .medal::after { border-color: var(--red-bright); opacity: 0.6; }
+
+  .pod--2 .medal {
+    background: radial-gradient(circle at 30% 30%, #E8E4DC, #BFBFBF 50%, #7F7A70 100%);
+    color: #2A2620;
+    border-color: #E8E4DC;
+  }
+  .pod--2 .medal::after { border-color: #D5D0C5; }
+
+  .pod--3 .medal {
+    background: radial-gradient(circle at 30% 30%, #DCA070, #B87333 50%, #7A4E1F 100%);
+    color: #1A1008;
+    border-color: #DCA070;
+  }
+  .pod--3 .medal::after { border-color: var(--bronze); }
+
+  .pod-name {
+    font-family: 'Big Shoulders Display', sans-serif;
+    font-weight: 700;
+    font-size: 26px;
+    line-height: 1;
+    text-align: center;
+    letter-spacing: 0.01em;
+    max-width: 240px;
+  }
+  .pod--1 .pod-name {
+    font-size: 34px;
+    background: linear-gradient(180deg, #FF8896, var(--red-bright));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .pod-points {
+    font-family: 'Big Shoulders Display', sans-serif;
+    font-weight: 900;
+    font-size: 44px;
+    line-height: 1;
+    color: var(--ink);
+  }
+  .pod--1 .pod-points { font-size: 62px; color: var(--red-bright); }
+
+  .pod-points-label {
+    font-family: 'Manrope', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.28em;
+    color: var(--ink-dim);
+    text-transform: uppercase;
+    margin-top: -6px;
+  }
+
+  .pod-tier {
+    font-family: 'Manrope', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    padding: 4px 10px;
+    border: 1px solid;
+    text-transform: uppercase;
+  }
+  .tier-diamante { color: var(--diamante); border-color: var(--diamante); }
+  .tier-ouro { color: var(--ouro); border-color: var(--ouro); }
+  .tier-prata { color: var(--prata); border-color: var(--prata); }
+  .tier-bronze { color: var(--bronze); border-color: var(--bronze); }
+
+  .pod-bar {
+    width: 100%;
+    background: linear-gradient(180deg, rgba(200,16,46,0.22), transparent);
+    border-top: 2px solid var(--red);
+    position: relative;
+  }
+  .pod--1 .pod-bar { height: 36px; border-top-color: var(--red-bright); background: linear-gradient(180deg, rgba(230,57,70,0.28), transparent);}
+  .pod--2 .pod-bar { height: 22px; border-top-color: var(--prata); background: linear-gradient(180deg, rgba(191,191,191,0.15), transparent);}
+  .pod--3 .pod-bar { height: 14px; border-top-color: var(--bronze); background: linear-gradient(180deg, rgba(184,115,51,0.15), transparent);}
+
+  /* =============== RANKING LIST =============== */
+  .ranking-rest {
+    margin-top: 28px;
+    border-top: 1px solid var(--line);
+    padding-top: 20px;
+  }
+
+  .rank-row {
+    display: grid;
+    grid-template-columns: 60px 1fr auto auto auto;
+    gap: 20px;
+    align-items: center;
+    padding: 10px 8px;
+    border-bottom: 1px solid var(--line);
+    transition: background 0.2s;
+  }
+
+  .rank-row:hover { background: rgba(200,16,46,0.05); }
+
+  .rank-pos {
+    font-family: 'Big Shoulders Display', sans-serif;
+    font-weight: 700;
+    font-size: 22px;
+    color: var(--ink-muted);
+    text-align: center;
+  }
+
+  .rank-name {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--ink);
+  }
+
+  .rank-metrics {
+    display: flex;
+    gap: 14px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 11px;
+    color: var(--ink-muted);
+    font-weight: 500;
+    letter-spacing: 0.05em;
+  }
+
+  .rank-metric-badge {
+    padding: 2px 8px;
+    border: 1px solid var(--line-strong);
+    border-radius: 2px;
+  }
+
+  .rank-tier {
+    font-family: 'Manrope', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.28em;
+    padding: 3px 8px;
+    border: 1px solid;
+    text-transform: uppercase;
+    min-width: 80px;
+    text-align: center;
+  }
+
+  .rank-points {
+    font-family: 'Big Shoulders Display', sans-serif;
+    font-weight: 900;
+    font-size: 28px;
+    color: var(--ink);
+    min-width: 70px;
+    text-align: right;
+    letter-spacing: 0.02em;
+  }
+
+  /* =============== SIDEBAR =============== */
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    padding: 28px 28px 24px;
+    position: relative;
+  }
+
+  .card-title {
+    font-family: 'Big Shoulders Display', sans-serif;
+    font-weight: 700;
+    font-size: 28px;
+    line-height: 1;
+    letter-spacing: 0.02em;
+    margin-bottom: 20px;
+  }
+
+  /* Tier distribution */
+  .tier-dist {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .tier-row {
+    display: grid;
+    grid-template-columns: 90px 1fr auto;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .tier-badge {
+    font-family: 'Manrope', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    padding: 5px 0;
+    text-transform: uppercase;
+    text-align: center;
+    color: var(--bg);
+  }
+
+  .tier-badge.diamante { background: var(--diamante); }
+  .tier-badge.ouro { background: var(--ouro); }
+  .tier-badge.prata { background: var(--prata); }
+  .tier-badge.bronze { background: var(--bronze); color: var(--ink); }
+  .tier-badge.inelegivel { background: #555; color: var(--ink); font-style: italic; }
+
+  .tier-bar-track {
+    height: 18px;
+    background: var(--bg-elev);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .tier-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--red-deep), var(--red));
+    position: relative;
+  }
+  .tier-bar-fill.diamante { background: linear-gradient(90deg, #4FA5AA, var(--diamante)); }
+  .tier-bar-fill.ouro { background: linear-gradient(90deg, #A67818, var(--ouro)); }
+  .tier-bar-fill.prata { background: linear-gradient(90deg, #8F8A82, var(--prata)); }
+  .tier-bar-fill.bronze { background: linear-gradient(90deg, #7A4E1F, var(--bronze)); }
+  .tier-bar-fill.inelegivel { background: linear-gradient(90deg, #333, #555); }
+
+  .tier-count {
+    font-family: 'Big Shoulders Display', sans-serif;
+    font-weight: 900;
+    font-size: 28px;
+    color: var(--ink);
+    line-height: 1;
+    min-width: 50px;
+    text-align: right;
+  }
+
+  .tier-count small {
+    font-size: 14px;
+    color: var(--ink-muted);
+    font-weight: 500;
+  }
+
+  /* Destaques */
+  .highlights {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .highlight {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  .highlight:last-child { border-bottom: none; padding-bottom: 0; }
+
+  .highlight-label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .highlight-cat {
+    font-family: 'Manrope', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.26em;
+    color: var(--red-bright);
+    text-transform: uppercase;
+  }
+
+  .highlight-name {
+    font-family: 'Big Shoulders Display', sans-serif;
+    font-weight: 700;
+    font-size: 24px;
+    color: var(--ink);
+    line-height: 1.05;
+  }
+
+  .highlight-value {
+    font-family: 'Big Shoulders Display', sans-serif;
+    font-weight: 900;
+    font-size: 36px;
+    color: var(--red-bright);
+    line-height: 1;
+    align-self: center;
+  }
+
+  .highlight-value small {
+    font-size: 14px;
+    color: var(--ink-muted);
+    font-weight: 500;
+  }
+
+  /* Progresso do mês */
+  .progress-card {
+    background: linear-gradient(135deg, var(--bg-card) 0%, #231817 100%);
+    border: 1px solid rgba(200,16,46,0.30);
+    padding: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .progress-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -30%;
+    width: 220px;
+    height: 220px;
+    background: radial-gradient(circle, rgba(230,57,70,0.18) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .progress-stat {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 12px 0;
+    border-bottom: 1px dashed var(--line);
+  }
+  .progress-stat:last-child { border-bottom: none; }
+
+  .progress-stat-label {
+    font-family: 'Manrope', sans-serif;
+    font-size: 12px;
+    color: var(--ink-muted);
+    font-weight: 500;
+    letter-spacing: 0.05em;
+  }
+
+  .progress-stat-value {
+    font-family: 'Big Shoulders Display', sans-serif;
+    font-weight: 700;
+    font-size: 24px;
+    color: var(--ink);
+    letter-spacing: 0.02em;
+  }
+
+  .progress-stat-value .unit {
+    font-size: 12px;
+    color: var(--ink-muted);
+    font-weight: 500;
+    margin-left: 4px;
+  }
+
+  /* Footer */
+  footer {
+    margin-top: 48px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'Manrope', sans-serif;
+    font-size: 11px;
+    color: var(--ink-dim);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  footer .divider {
+    color: var(--red);
+  }
+
+  /* Animações discretas */
+  @keyframes pulseRed {
+    0%, 100% { filter: drop-shadow(0 0 24px rgba(230,57,70,0.45)); }
+    50% { filter: drop-shadow(0 0 48px rgba(230,57,70,0.7)); }
+  }
+
+  .pod--1 .medal {
+    animation: pulseRed 3s ease-in-out infinite;
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .rank-row { animation: fadeInUp 0.5s ease-out backwards; }
+  .rank-row:nth-child(1) { animation-delay: 0.05s; }
+  .rank-row:nth-child(2) { animation-delay: 0.10s; }
+  .rank-row:nth-child(3) { animation-delay: 0.15s; }
+  .rank-row:nth-child(4) { animation-delay: 0.20s; }
+  .rank-row:nth-child(5) { animation-delay: 0.25s; }
+  .rank-row:nth-child(6) { animation-delay: 0.30s; }
+  .rank-row:nth-child(7) { animation-delay: 0.35s; }
+
+  /* Responsivo */
+  @media (max-width: 1280px) {
+    .grid { grid-template-columns: 1fr; }
+    .brand .logo { font-size: 84px; }
+    .stage { padding: 24px 32px; }
+  }
+
+  @media (max-width: 768px) {
+    .stage { padding: 20px; }
+    header { grid-template-columns: 1fr; gap: 20px; text-align: center; }
+    .header-right, .header-left { align-items: center; }
+    .brand .logo { font-size: 64px; }
+    .podium { grid-template-columns: 1fr; }
+    .pod-bar { display: none; }
+    .rank-row { grid-template-columns: 40px 1fr auto; }
+    .rank-metrics, .rank-tier { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+
+  <header>
+    <div class="header-left">
+      <span class="kicker">Valcar Consórcio</span>
+      <span class="cycle">Ciclo de Junho · 2026 <em style="color:var(--ink-dim);font-style:normal;">· retenção M-5 (Jan/26)</em></span>
+    </div>
+    <div class="brand">
+      <div class="logo">Realizador<span class="plus">+</span></div>
+      <div class="tagline">Reconhecendo quem faz acontecer</div>
+    </div>
+    <div class="header-right">
+      <span class="clock" id="clock">—</span>
+      <span class="days-left">Faltam <strong id="daysLeft">—</strong> dias pro fechamento</span>
+    </div>
+  </header>
+
+  <div class="grid">
+    <!-- COLUNA PRINCIPAL: PÓDIO + LISTA -->
+    <section class="podium-wrap">
+      <div class="section-label">Ranking do mês</div>
+
+      <div class="podium">
+        <!-- 2º lugar -->
+        <div class="pod pod--2">
+          <div class="medal">2</div>
+          <div class="pod-name">Lucas Cavalcante</div>
+          <div class="pod-points">867</div>
+          <div class="pod-points-label">Pontos</div>
+          <div class="pod-tier tier-diamante">Diamante</div>
+          <div class="pod-bar"></div>
+        </div>
+        <!-- 1º lugar (centro) -->
+        <div class="pod pod--1">
+          <div class="medal">1</div>
+          <div class="pod-name">Mariana Freitas</div>
+          <div class="pod-points">942</div>
+          <div class="pod-points-label">Pontos</div>
+          <div class="pod-tier tier-diamante">Diamante</div>
+          <div class="pod-bar"></div>
+        </div>
+        <!-- 3º lugar -->
+        <div class="pod pod--3">
+          <div class="medal">3</div>
+          <div class="pod-name">Guilherme Moura</div>
+          <div class="pod-points">794</div>
+          <div class="pod-points-label">Pontos</div>
+          <div class="pod-tier tier-diamante">Diamante</div>
+          <div class="pod-bar"></div>
+        </div>
+      </div>
+
+      <div class="ranking-rest" id="restList"></div>
+    </section>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <!-- Progresso do mês -->
+      <div class="card progress-card">
+        <div class="card-title">Pulso do Mês</div>
+        <div class="progress-stat">
+          <span class="progress-stat-label">Elegíveis à premiação</span>
+          <span class="progress-stat-value">34<span class="unit">/ 40</span></span>
+        </div>
+        <div class="progress-stat">
+          <span class="progress-stat-label">Faturamento total do mês</span>
+          <span class="progress-stat-value">R$ 42,8<span class="unit">M</span></span>
+        </div>
+        <div class="progress-stat">
+          <span class="progress-stat-label">Em andamento</span>
+          <span class="progress-stat-value">52<span class="unit">%</span></span>
+        </div>
+        <div class="progress-stat">
+          <span class="progress-stat-label">Retenção M-5 média</span>
+          <span class="progress-stat-value">64<span class="unit">%</span></span>
+        </div>
+        <div class="progress-stat">
+          <span class="progress-stat-label">Vendas com Pix admin</span>
+          <span class="progress-stat-value">48<span class="unit">%</span></span>
+        </div>
+      </div>
+
+      <!-- Distribuição de tiers -->
+      <div class="card">
+        <div class="card-title">Distribuição de Tiers</div>
+        <div class="tier-dist">
+          <div class="tier-row">
+            <span class="tier-badge diamante">Diamante</span>
+            <div class="tier-bar-track"><div class="tier-bar-fill diamante" style="width: 12.5%"></div></div>
+            <span class="tier-count">5<small> / 40</small></span>
+          </div>
+          <div class="tier-row">
+            <span class="tier-badge ouro">Ouro</span>
+            <div class="tier-bar-track"><div class="tier-bar-fill ouro" style="width: 20%"></div></div>
+            <span class="tier-count">8<small> / 40</small></span>
+          </div>
+          <div class="tier-row">
+            <span class="tier-badge prata">Prata</span>
+            <div class="tier-bar-track"><div class="tier-bar-fill prata" style="width: 35%"></div></div>
+            <span class="tier-count">14<small> / 40</small></span>
+          </div>
+          <div class="tier-row">
+            <span class="tier-badge bronze">Bronze</span>
+            <div class="tier-bar-track"><div class="tier-bar-fill bronze" style="width: 17.5%"></div></div>
+            <span class="tier-count">7<small> / 40</small></span>
+          </div>
+          <div class="tier-row">
+            <span class="tier-badge inelegivel">Inelegível</span>
+            <div class="tier-bar-track"><div class="tier-bar-fill inelegivel" style="width: 15%"></div></div>
+            <span class="tier-count">6<small> / 40</small></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Destaques -->
+      <div class="card">
+        <div class="card-title">Destaques de Qualidade</div>
+        <div class="highlights">
+          <div class="highlight">
+            <div class="highlight-label">
+              <span class="highlight-cat">Destaque Em Andamento</span>
+              <span class="highlight-name">Mariana Freitas</span>
+            </div>
+            <div class="highlight-value">84<small>%</small></div>
+          </div>
+          <div class="highlight">
+            <div class="highlight-label">
+              <span class="highlight-cat">Destaque Seguro</span>
+              <span class="highlight-name">Fernanda Dias</span>
+            </div>
+            <div class="highlight-value">68<small>%</small></div>
+          </div>
+          <div class="highlight">
+            <div class="highlight-label">
+              <span class="highlight-cat">Destaque Pix Admin</span>
+              <span class="highlight-name">Rafael Duarte</span>
+            </div>
+            <div class="highlight-value">82<small>%</small></div>
+          </div>
+          <div class="highlight">
+            <div class="highlight-label">
+              <span class="highlight-cat">Destaque Retenção M-5</span>
+              <span class="highlight-name">Ana Paula Costa</span>
+            </div>
+            <div class="highlight-value">89<small>%</small></div>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <footer>
+    <span>Atualizado semanalmente</span>
+    <span class="divider">◆</span>
+    <span>Regulamento completo com a gestão</span>
+    <span class="divider">◆</span>
+    <span>Fechamento no último dia útil do mês</span>
+  </footer>
+</div>
+
+<script>
+  // Ranking 4-10 (pódio já mostrou 1-3)
+  const rest = [
+    { pos: 4, nome: "Ana Paula Costa", pts: 731, tier: "diamante", ret: "89%", seg: "54%", pix: "71%", and: "68%" },
+    { pos: 5, nome: "Rafael Duarte", pts: 686, tier: "diamante", ret: "74%", seg: "42%", pix: "82%", and: "72%" },
+    { pos: 6, nome: "Fernanda Dias", pts: 648, tier: "ouro", ret: "72%", seg: "68%", pix: "65%", and: "58%" },
+    { pos: 7, nome: "Bruno Alves", pts: 565, tier: "ouro", ret: "68%", seg: "38%", pix: "60%", and: "52%" },
+    { pos: 8, nome: "Camila Rocha", pts: 512, tier: "ouro", ret: "71%", seg: "45%", pix: "55%", and: "48%" },
+    { pos: 9, nome: "Eduardo Pinto", pts: 478, tier: "ouro", ret: "63%", seg: "32%", pix: "58%", and: "45%" },
+    { pos: 10, nome: "Isabela Moreira", pts: 452, tier: "ouro", ret: "66%", seg: "40%", pix: "52%", and: "50%" },
+  ];
+
+  const restList = document.getElementById("restList");
+  rest.forEach(v => {
+    const row = document.createElement("div");
+    row.className = "rank-row";
+    row.innerHTML = `
+      <div class="rank-pos">${String(v.pos).padStart(2,'0')}</div>
+      <div class="rank-name">${v.nome}</div>
+      <div class="rank-metrics">
+        <span class="rank-metric-badge">And ${v.and}</span>
+        <span class="rank-metric-badge">Ret ${v.ret}</span>
+        <span class="rank-metric-badge">Seg ${v.seg}</span>
+        <span class="rank-metric-badge">Pix ${v.pix}</span>
+      </div>
+      <div class="rank-tier tier-${v.tier}">${v.tier.charAt(0).toUpperCase()+v.tier.slice(1)}</div>
+      <div class="rank-points">${v.pts}</div>
+    `;
+    restList.appendChild(row);
+  });
+
+  // Relógio + dias até fechamento
+  function tick() {
+    const agora = new Date();
+    const hh = String(agora.getHours()).padStart(2,'0');
+    const mm = String(agora.getMinutes()).padStart(2,'0');
+    document.getElementById("clock").textContent = `${hh}:${mm}`;
+
+    // Último dia do mês corrente
+    const fim = new Date(agora.getFullYear(), agora.getMonth() + 1, 0);
+    const faltam = Math.max(0, Math.ceil((fim - agora) / (1000*60*60*24)));
+    document.getElementById("daysLeft").textContent = faltam;
+  }
+  tick();
+  setInterval(tick, 30000);
+</script>
+
+</body>
+</html>
